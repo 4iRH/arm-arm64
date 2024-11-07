@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Dylib Converter</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --background-color: #0c0c0c;
+            --text-color: #f0f0f0;
+            --accent-color: #007aff;
+            --border-color: #2c2c2c;
+            --neon-glow: 0 0 2px rgba(255, 255, 255, 0.7), 0 0 4px rgba(255, 255, 255, 0.5);
+        }
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            font-weight: 300;
+            letter-spacing: -0.022em;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        .upload-section {
+            text-align: center;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+        .upload-section:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 122, 255, 0.1);
+        }
+        .form-group {
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 18px;
+            letter-spacing: -0.022em;
+            text-shadow: var(--neon-glow);
+        }
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: 'SF Pro Display', sans-serif;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+        }
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 122, 255, 0.2);
+        }
+        button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            letter-spacing: -0.022em;
+            font-family: 'SF Pro Display', sans-serif;
+            text-shadow: var(--neon-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background-color: #555555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 50px;
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            text-shadow: var(--neon-glow);
+            background: linear-gradient(to right, #ffffff, #d0d0d0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #upload-label {
+            font-size: 20px;
+            color: var(--text-color);
+            padding: 20px;
+            font-weight: 400;
+            text-shadow: var(--neon-glow);
+        }
+        #package-info {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #package-info.visible {
+            display: block;
+            opacity: 1;
+        }
+        .error-message {
+            color: #ff3b30;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+            font-weight: 400;
+            text-shadow: 0 0 2px rgba(255, 59, 48, 0.7);
+        }
+        .credits {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 300;
+            text-shadow: var(--neon-glow);
+        }
+        .credits a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-shadow: var(--neon-glow);
+        }
+        .credits a:hover {
+            color: var(--accent-color);
+        }
+        @keyframes subtleNeonPulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.9; }
+            100% { opacity: 1; }
+        }
+        .subtle-neon-pulse {
+            animation: subtleNeonPulse 3s infinite;
+        }
+        .convert-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .convert-btn {
+            min-width: 200px;
+        }
+        .convert-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="subtle-neon-pulse">iOS Dylib Converter</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="file-upload" accept=".dylib" style="display: none;">
+            <label for="file-upload" style="cursor: pointer;">
+                <div id="upload-label">Drop your .dylib file here or click to upload</div>
+            </label>
+            <div id="file-error" class="error-message">Please select a valid .dylib file</div>
+            <div class="convert-options">
+                <button type="button" id="convert-arm" class="convert-btn" disabled>
+                    <svg class="convert-icon" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Convert to ARM
+                </button>
+                <button type="button" id="convert-arm64" class="convert-btn" disabled>
+                    <svg class="convert-icon" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Convert to ARM64
+                </button>
+            </div>
+        </div>
+
+        <form id="package-info">
+            <div class="form-group">
+                <label for="package-name">Package Name</label>
+                <input type="text" id="package-name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="package-identifier">Package Identifier</label>
+                <input type="text" id="package-identifier" placeholder="com.example.tweak" required>
+            </div>
+
+            <div class="form-group">
+                <label for="version">Version</label>
+                <input type="text" id="version" placeholder="1.0.0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author Name</label>
+                <input type="text" id="author" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Author Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Supported iOS Versions</label>
+                <div style="display: flex; gap: 16px;">
+                    <input type="text" id="min-ios" placeholder="Min (14.0)" required>
+                    <input type="text" id="max-ios" placeholder="Max (16.5)" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="dependencies">Dependencies</label>
+                <textarea id="dependencies" rows="3" placeholder="Enter each dependency on a new line&#10;mobilesubstrate&#10;preferenceloader"></textarea>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="button" id="create-package" class="convert-btn">
+                    <svg class="convert-icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    </svg>
+                    Create Package
+                </button>
+            </div>
+        </form>
+        
+        <div class="credits subtle-neon-pulse">
+            Created by Ali AL-sharif - <a href="https://instagram.com/_m7pn">@_m7pn</a>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
